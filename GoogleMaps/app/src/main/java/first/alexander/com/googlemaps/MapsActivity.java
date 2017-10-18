@@ -2,6 +2,7 @@ package first.alexander.com.googlemaps;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -13,10 +14,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,10 +43,8 @@ import DirectionFinderPackage.DirectionFinderListener;
 import DirectionFinderPackage.Route;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DirectionFinderListener {
-
     private GoogleMap mMap;
     private Button btnFindPath;
-    private EditText etOrigin;
     private EditText etDestination;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
@@ -50,6 +52,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ProgressDialog progressDialog;
 
     LocationManager locationManager;
+
+    private Double latitude;
+    private Double longitude;
+    private LatLng latLng;
+    private boolean follow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,28 +85,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
+                    boolean noLocation = false;
 
-                    LatLng latLng = new LatLng(latitude, longitude);
+                    if(latitude == null || longitude == null)
+                        noLocation = true;
 
-                    Geocoder geocoder = new Geocoder(getApplicationContext());
-                    try {
-                        List<Address> addressList = geocoder.getFromLocation(latitude, longitude, 1);
-                        String str_location = addressList.get(0).getLocality() + ",";
-                        str_location += addressList.get(0).getCountryName();
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    latLng = new LatLng(latitude, longitude);
 
-                        // Add user position marker on map
-                        mMap.addMarker(new MarkerOptions().position(latLng).title(str_location));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10.2f));
-
-                        originMarkers.add(mMap.addMarker(new MarkerOptions()
-                                .title("User Location")
-                                .position(latLng)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
+                    if(follow || noLocation)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
                 }
 
                 @Override
@@ -122,27 +118,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
+                    boolean noLocation = false;
 
-                    LatLng latLng = new LatLng(latitude, longitude);
+                    if(latitude == null || longitude == null)
+                        noLocation = true;
 
-                    Geocoder geocoder = new Geocoder(getApplicationContext());
-                    try {
-                        List<Address> addressList = geocoder.getFromLocation(latitude, longitude, 1);
-                        String str_location = addressList.get(0).getLocality() + ",";
-                        str_location += addressList.get(0).getCountryName();
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    latLng = new LatLng(latitude, longitude);
 
-                        // Add user position marker on map
-                        mMap.addMarker(new MarkerOptions().position(latLng).title(str_location));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10.2f));
-
-                        originMarkers.add(mMap.addMarker(new MarkerOptions()
-                                .title("User Location")
-                                .position(latLng)));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    if(follow || noLocation)
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
                 }
 
                 @Override
@@ -163,13 +149,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         else{
-            Toast.makeText(this, "No Provider is Enabled, Please Enabled your GPS Provider !", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Please enable your GPS provider!", Toast.LENGTH_LONG).show();
         }
 
 
         btnFindPath = (Button) findViewById(R.id.btnFindPath);
-        etOrigin = (EditText) findViewById(R.id.etOrigin);
         etDestination = (EditText) findViewById(R.id.etDestination);
+
+        ToggleButton toggle = (ToggleButton) findViewById(R.id.followButton);
+        toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                follow = isChecked;
+                if(isChecked)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
+            }
+        });
 
         btnFindPath.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -181,12 +175,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     private void sendRequest() {
-        String origin = etOrigin.getText().toString();
+        String origin = Double.toString(latitude) + ", " + Double.toString(longitude);
         String destination = etDestination.getText().toString();
-        if (origin.isEmpty()) {
-            Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+
         if (destination.isEmpty()) {
             Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
             return;
@@ -196,6 +187,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             new DirectionFinder(this, origin, destination).execute();
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+        }
+
+        // Closes keyboard
+        View viewFocus = this.getCurrentFocus();
+        if (viewFocus != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(viewFocus.getWindowToken(), 0);
         }
     }
 
@@ -231,7 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onDirectionFinderStart() {
         progressDialog = ProgressDialog.show(this, "Please wait.",
-                "Finding direction..!", true);
+                "Finding direction...", true);
 
         if (originMarkers != null) {
             for (Marker marker : originMarkers) {
@@ -260,7 +258,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         destinationMarkers = new ArrayList<>();
 
         for (Route route : routes) {
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, 16));
+            // TODO: Centre in centre of path, adjustable zoom
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(route.startLocation, (float) 12.5));
             ((TextView) findViewById(R.id.tvDuration)).setText(route.duration.text);
             ((TextView) findViewById(R.id.tvDistance)).setText(route.distance.text);
 
@@ -275,7 +274,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             PolylineOptions polylineOptions = new PolylineOptions().
                     geodesic(true).
-                    color(Color.BLUE).
+                    color(Color.rgb(0, 155, 224)).
                     width(10);
 
             for (int i = 0; i < route.points.size(); i++)

@@ -1,6 +1,7 @@
 package DirectionFinderPackage;
 
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -18,6 +19,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+
+import first.alexander.com.googlemaps.MapsActivity;
 
 /**
  * Created by Alexander Julianto on 10/9/2017.
@@ -49,7 +52,6 @@ public class DirectionFinder {
     }
 
     private class DownloadRawData extends AsyncTask<String, Void, String> {
-
         @Override
         protected String doInBackground(String... params) {
             String link = params[0];
@@ -85,8 +87,10 @@ public class DirectionFinder {
     }
 
     private void parseJSon(String data) throws JSONException {
-        if (data == null)
+        if (data == null) {
+            // TODO: fix, add error prompt
             return;
+        }
 
         List<Route> routes = new ArrayList<Route>();
         JSONObject jsonData = new JSONObject(data);

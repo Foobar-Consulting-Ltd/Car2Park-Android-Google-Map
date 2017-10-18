@@ -6,58 +6,75 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:orientation="vertical"  >
 
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/etOrigin"
-    android:hint="Enter origin address" />
-
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:hint="Enter destination address"
-    android:id="@+id/etDestination" />
-
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    >
-    <Button
+    android:weightSum="1">
+    <EditText
+        android:id="@+id/etDestination"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Find path"
-        android:id="@+id/btnFindPath" />
-    <ImageView
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_distance"/>
-    <TextView
-        android:layout_marginLeft="5dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0 km"
-        android:id="@+id/tvDistance" />
+        android:hint="Enter destination address"
+        android:layout_weight="1" />
 
-    <ImageView
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:padding="5dp"
-        android:src="@drawable/ic_clock"/>
-    <TextView
-        android:layout_marginLeft="5dp"
+    <Button
+        android:id="@+id/btnFindPath"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="0 min"
-        android:id="@+id/tvDuration" />
+        android:text="Find path" />
 </LinearLayout>
 
 
-<fragment
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <ToggleButton
+            android:id="@+id/followButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.85"
+            android:text="Follow"
+            android:textOff="Follow"
+            android:textOn="Follow" />
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            android:src="@drawable/ic_distance" />
+
+        <TextView
+            android:id="@+id/tvDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="0 km" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="5dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_clock" />
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="20dp"
+            android:text="0 min" />
+    </LinearLayout>
+
+
+    <fragment
     android:id="@+id/map"
     android:name="com.google.android.gms.maps.SupportMapFragment"
     android:layout_width="match_parent"
