@@ -1,7 +1,6 @@
 package DirectionFinderPackage;
 
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -19,8 +18,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-
-import first.alexander.com.googlemaps.MapsActivity;
 
 /**
  * Created by Alexander Julianto on 10/9/2017.
@@ -88,11 +85,10 @@ public class DirectionFinder {
 
     private void parseJSon(String data) throws JSONException {
         if (data == null) {
-            // TODO: fix, add error prompt
             return;
         }
 
-        List<Route> routes = new ArrayList<Route>();
+        List<Route> routes = new ArrayList<>();
         JSONObject jsonData = new JSONObject(data);
         JSONArray jsonRoutes = jsonData.getJSONArray("routes");
         for (int i = 0; i < jsonRoutes.length(); i++) {
@@ -107,8 +103,8 @@ public class DirectionFinder {
             JSONObject jsonEndLocation = jsonLeg.getJSONObject("end_location");
             JSONObject jsonStartLocation = jsonLeg.getJSONObject("start_location");
 
-            route.distance = new Distance(jsonDistance.getString("text"), jsonDistance.getInt("value"));
-            route.duration = new Duration(jsonDuration.getString("text"), jsonDuration.getInt("value"));
+            route.distance = jsonDistance.getString("text");
+            route.duration = jsonDuration.getString("text");
             route.endAddress = jsonLeg.getString("end_address");
             route.startAddress = jsonLeg.getString("start_address");
             route.startLocation = new LatLng(jsonStartLocation.getDouble("lat"), jsonStartLocation.getDouble("lng"));
@@ -124,7 +120,7 @@ public class DirectionFinder {
     private List<LatLng> decodePolyLine(final String poly) {
         int len = poly.length();
         int index = 0;
-        List<LatLng> decoded = new ArrayList<LatLng>();
+        List<LatLng> decoded = new ArrayList<>();
         int lat = 0;
         int lng = 0;
 
