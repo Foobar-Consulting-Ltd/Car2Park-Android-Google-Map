@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -49,7 +50,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Polyline> polylinePaths = new ArrayList<>();
     private ProgressDialog progressDialog;
 
-    LocationManager locationManager;
+    private LocationManager locationManager;
 
     private Double latitude;
     private Double longitude;
@@ -224,10 +225,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
             }
 
-            // For if the location provider becomes available or unavailable
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-                
+                if(status == LocationProvider.OUT_OF_SERVICE || status == LocationProvider.TEMPORARILY_UNAVAILABLE) {
+                    Toast.makeText(MapsActivity.this, "Location provider is unavailable", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
@@ -256,6 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
             }
             default: super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                break;
         }
     }
 }
