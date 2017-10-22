@@ -224,19 +224,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
             }
 
+            // For if the location provider becomes available or unavailable
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
+                
             }
 
             @Override
             public void onProviderEnabled(String provider) {
-
+                Toast.makeText(MapsActivity.this, "Location provider enabled", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onProviderDisabled(String provider) {
-
+                Toast.makeText(MapsActivity.this, "Location provider disabled, please enable!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -248,7 +249,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     this.recreate();
                 }
-                return;
+                else {
+                    Toast.makeText(this, "Location permission required to function!", Toast.LENGTH_LONG).show();
+                    // App crashes if you press anything lol
+                }
+                break;
             }
             default: super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
