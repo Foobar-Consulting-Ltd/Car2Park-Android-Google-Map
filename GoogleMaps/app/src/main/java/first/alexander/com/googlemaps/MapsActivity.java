@@ -86,6 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Button btnFindPath = (Button) findViewById(R.id.btnFindPath);
         etDestination = (EditText) findViewById(R.id.etDestination);
 
+        // Button that enables follows current location on map
         ToggleButton toggle = (ToggleButton) findViewById(R.id.followButton);
         toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -104,7 +105,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void sendRequest() {
-        String origin = Double.toString(latitude) + ", " + Double.toString(longitude);
+        // Reset duration and distance display
+        String noPath = "0 km";
+        ((TextView) findViewById(R.id.tvDuration)).setText(noPath);
+        ((TextView) findViewById(R.id.tvDistance)).setText(noPath);
+
+        String origin = Double.toString(latitude) + "," + Double.toString(longitude);
         String destination = etDestination.getText().toString();
 
         if (destination.isEmpty()) {
@@ -136,6 +142,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOC_PERMISSION_CODE);
             return;
         }
+
         mMap.setMyLocationEnabled(true);
     }
 
@@ -214,6 +221,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onLocationChanged(Location location) {
                 boolean noLocation = false;
 
+                // If a previous location did not exist, like when starting the app
                 if (latitude == null || longitude == null)
                     noLocation = true;
 
@@ -221,6 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 longitude = location.getLongitude();
                 latLng = new LatLng(latitude, longitude);
 
+                // Move the camera to the current location
                 if (follow || noLocation)
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
             }
@@ -249,6 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         switch (requestCode) {
             case LOC_PERMISSION_CODE: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Recreates activity, should probably not do this
                     this.recreate();
                 }
                 else {

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -21,11 +22,13 @@ import java.util.List;
 
 /**
  * Created by Alexander Julianto on 10/9/2017.
+ *
+ * Finds the path to the destination by accessing the Google Maps direction API
  */
 
 public class DirectionFinder {
     private static final String DIRECTION_URL_API = "https://maps.googleapis.com/maps/api/directions/json?";
-    private static final String GOOGLE_DIRECTION_API_KEY = "\n" + "AIzaSyDnwLF2-WfK8cVZt9OoDYJ9Y8kspXhEHfI";
+    private static final String GOOGLE_DIRECTION_API_KEY = "AIzaSyDnwLF2-WfK8cVZt9OoDYJ9Y8kspXhEHfI";
     private DirectionFinderListener listener;
     private String origin;
     private String destination;
@@ -45,32 +48,42 @@ public class DirectionFinder {
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
 
-        return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination + "&key=" + GOOGLE_DIRECTION_API_KEY;
+        String url = DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination + "&key" + GOOGLE_DIRECTION_API_KEY;
+        System.out.println(url);
+
+        return url;
     }
 
     private class DownloadRawData extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... params) {
             String link = params[0];
+            String jsonData = null;
+
             try {
                 URL url = new URL(link);
-                InputStream is = url.openConnection().getInputStream();
+                HttpURLConnection urlCon = (HttpURLConnection) url.openConnection();
+                InputStream is = urlCon.getInputStream();
                 StringBuffer buffer = new StringBuffer();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
+                    buffer.append(line).append("\n");
                 }
 
-                return buffer.toString();
+                jsonData = buffer.toString();
+
+                reader.close();
+                is.close();
+                urlCon.disconnect();
 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            return jsonData;
         }
 
         @Override
