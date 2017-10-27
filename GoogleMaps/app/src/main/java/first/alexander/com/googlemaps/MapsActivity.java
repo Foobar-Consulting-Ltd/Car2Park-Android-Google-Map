@@ -48,7 +48,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
-    private Marker destinationPoint;
+    //private Marker destinationPoint; (for TESTING MapOnClick)
     private ProgressDialog progressDialog;
 
     private LocationManager locationManager;
@@ -111,14 +111,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapClick(LatLng latLng) {
 
-        if(destinationPoint != null){
+        // Adding a new marker (FOR TESTING onMapClick)
+        /*if(destinationPoint != null){
             destinationPoint.remove();
         }
         destinationPoint = mMap.addMarker(new MarkerOptions()
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
                 .title("Picked Location")
                 .position(latLng));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));*/
+
+
+        String origin = Double.toString(latitude) + "," + Double.toString(longitude);
+        String destination = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
+
+        try {
+            new DirectionFinder(this, origin, destination).execute();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void sendRequest() {
