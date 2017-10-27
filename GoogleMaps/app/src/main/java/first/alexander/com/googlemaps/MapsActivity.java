@@ -42,12 +42,13 @@ import DirectionFinderPackage.DirectionFinder;
 import DirectionFinderPackage.DirectionFinderListener;
 import DirectionFinderPackage.Route;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DirectionFinderListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, DirectionFinderListener, GoogleMap.OnMapClickListener{
     private GoogleMap mMap;
     private EditText etDestination;
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
+    private Marker destinationPoint;
     private ProgressDialog progressDialog;
 
     private LocationManager locationManager;
@@ -84,6 +85,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         Button btnFindPath = (Button) findViewById(R.id.btnFindPath);
+        btnFindPath.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendRequest();
+            }
+        });
+
+
         etDestination = (EditText) findViewById(R.id.etDestination);
 
         // Button that enables follows current location on map
@@ -96,12 +105,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        btnFindPath.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendRequest();
-            }
-        });
+    }
+
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+
+        if(destinationPoint != null){
+            destinationPoint.remove();
+        }
+        destinationPoint = mMap.addMarker(new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker))
+                .title("Picked Location")
+                .position(latLng));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));
     }
 
     private void sendRequest() {
@@ -144,6 +161,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         mMap.setMyLocationEnabled(true);
+        mMap.setOnMapClickListener(this);
     }
 
     @Override
@@ -271,4 +289,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
         }
     }
+
+
 }
+
