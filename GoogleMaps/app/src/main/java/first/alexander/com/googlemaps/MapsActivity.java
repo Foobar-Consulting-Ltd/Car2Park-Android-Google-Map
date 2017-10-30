@@ -122,15 +122,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.2f));*/
 
 
-        String origin = Double.toString(latitude) + "," + Double.toString(longitude);
-        String destination = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
 
-        try {
-            new DirectionFinder(this, origin, destination).execute();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        if(latitude != null && longitude != null) {
+            String origin = Double.toString(latitude) + "," + Double.toString(longitude);
+            String destination = Double.toString(latLng.latitude) + "," + Double.toString(latLng.longitude);
+
+            try {
+                new DirectionFinder(this, origin, destination).execute();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+
         }
+        else{
 
+         return;
+
+        }
     }
 
     private void sendRequest() {
